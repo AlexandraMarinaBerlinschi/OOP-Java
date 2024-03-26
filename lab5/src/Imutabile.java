@@ -1,0 +1,2 @@
+public class Imutabile {
+}
