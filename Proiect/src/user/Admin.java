@@ -1,28 +1,24 @@
-package User;
-import Interfaces.IUser;
+package user;
 
-public class Admin implements IUser {
-    private String username;
-    private String password;
+import tourism.TouristPackage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Admin extends User {
     private static final String adminCode = "0000";
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    private List<TouristPackage> pacheteTuristice;
 
     public Admin(String username, String password, String code) {
+        super(username, password);
         if (adminCode.equals(code)) {
-            this.username = username;
-            this.password = password;
+            this.pacheteTuristice = new ArrayList<>();
         } else {
             System.out.println("Cod incorect. Nu poti crea un cont de admin fara codul de acces");
         }
     }
 
+    @Override
     public void updatePassword(String newPassword) {
         if (ValidPassword(newPassword)) {
             this.password = newPassword;
@@ -32,11 +28,15 @@ public class Admin implements IUser {
         }
     }
 
-    private boolean ValidPassword(String password) {
+    public static boolean ValidPassword(String password) {
         return password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}");
     }
 
-    public boolean verifyPassword(String inputPassword) {
-        return this.password != null && this.password.equals(inputPassword);
+    public void addTouristPackage(TouristPackage pachet) {
+        pacheteTuristice.add(pachet);
+    }
+
+    public void removeTouristPackage(TouristPackage pachet) {
+        pacheteTuristice.remove(pachet);
     }
 }
