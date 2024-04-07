@@ -2,7 +2,9 @@ Tipuri de obiecte:
 
 Interfete
     - IUser ( interfata pentru Admin si User)
+    
 Alte Pachete :
+
     1.user
         1.1. Admin
         1.2. NormalUser
@@ -30,13 +32,25 @@ Alte Pachete :
 Actiuni/Interogari
 
 1.Separarea utilizatorilor in 2 categorii : Admin si User. Un admin are functionalitati exclusive dar si cateva din functionalitatile userului. Un user are functionalitati obisnuite.
-2.Se va implementa un sistem de autentificare pentru a identifica rolul utilizatorului
+
+2.Se va implementa un sistem de autentificare si inregistrare pentru a identifica rolul utilizatorului
+
 3.Adminul poate adauga/sterge/actualiza un pachet turistic
-4.Utilizatorii inregistrati pot cere un raport al contului ( numarul de pachete turistice rezervate )
+
+4.Utilizatorii inregistrati pot cere un raport al contului 
+
 5.Utilizatorii pot filtra pachetele turistice dupa pret/rating
+
 6.Utilizatorii pot cauta un pachet turistic dupa nume/disponibilitate/destinatie, ulterior pot selecta un pachet turistic pentru afisarea detaliilor
+
 7.Utilizatorii inregistrati pot rezerva un pachet turistic
+
 8.Adminul poate genera un raport cu vanzarile de pachete turistice
-9.Sistem de recenzii si evaluari pentru pachetele turistice
+
+9.Sistem de recenzii si evaluari pentru pachetele turistice. Un user poate adauga/sterge/actualiza o recenzie personala.
+
 10.Sistem de promotii personalizate : pentru utilizatorii care au optat pentru mai multe pachete in cadrul platformei
+
 11.Sistem de redeem code : fiecare user va avea un cod personal si unic. Cand un user nou se va inregistra, acesta va avea ocazia sa completeze cu un cod de redeem al altui user. Cand un user va atinge un prag de utilizatori noi adusi, va beneficia de beneficii ( reduceri, anulare gratuita, etc )
+
+12.Un user isi poate sterge/actualiza contul ( normalUser si Admin )
