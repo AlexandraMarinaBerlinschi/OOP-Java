@@ -1,4 +1,0 @@
-nume;prenume;24;282;21
-nume3;prenume3;72;299;21
-nume;prenume;29;292;222
-nume;prenume;21;21;21

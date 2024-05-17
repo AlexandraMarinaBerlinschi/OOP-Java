@@ -1,10 +1,11 @@
 package tourism;
 
-import tourism.TouristPackage;
 import java.util.List;
 import java.util.ArrayList;
 
 public class Destination {
+
+    private int id;
     private String tara;
     private String tipAtractie;
     private String activitati;
@@ -13,6 +14,13 @@ public class Destination {
 
     public Destination(String destinatie) {
         this.destinatie = destinatie;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNumeDestinatie() {

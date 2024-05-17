@@ -1,7 +1,6 @@
 package tourism;
 
 import reviewSystem.Review;
-import tourism.Destination;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +12,14 @@ public class TouristPackage {
     private Destination destinatie;
     private String nume;
     private int nrPersoane;
-    private final int id;
+    //private final int id;
+    private int id;
     private List<Review> reviews;
     private static int lastId = 0;
 
     public TouristPackage(String nume, double pret, String durata, float rating, Destination destinatie, int nrPersoane) {
         this.id = ++lastId;
+        // this.id = id;
         this.nume = nume;
         this.pret = pret;
         this.durata = durata;
@@ -30,6 +31,10 @@ public class TouristPackage {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setReviews(List<Review> reviews) {

@@ -4,7 +4,10 @@ import services.*;
 import daoservices.ReviewRepositoryService;
 import user.Admin;
 import user.NormalUser;
+import database.DataBaseConnection;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 import interfaces.IUser;
@@ -13,11 +16,21 @@ public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static TourismService tourismService = new TourismService();
     private static UserService userService = new UserService(tourismService);
-    private static ReviewRepositoryService reviewRepositoryService = new ReviewRepositoryService(new ReviewDao());
-    private static ReviewService reviewService = new ReviewService(tourismService, reviewRepositoryService);
+    private static ReviewRepositoryService reviewRepositoryService;
+    private static ReviewService reviewService;
     private static boolean Autentificat = false;
 
     public static void main(String[] args) {
+        Connection connection = null;
+        try {
+            connection = DataBaseConnection.getConnection();
+            reviewRepositoryService = new ReviewRepositoryService(connection);
+            reviewService = new ReviewService(tourismService, connection);
+        } catch (SQLException e) {
+            System.out.println("Eroare la conectarea la baza de date: " + e.getMessage());
+            return;
+        }
+
         while (true) {
             System.out.println("Bine ati venit! Va rugam sa va autentificati");
             System.out.println("1. Inregistrare");
@@ -30,7 +43,8 @@ public class Main {
                     userService.registerUser();
                     break;
                 case "2":
-                    IUser user = userService.loginUser();
+                    IUser user = null;
+                    user = userService.loginUser();
                     if (user != null) {
                         userOperations(user, userService, reviewService);
                     }
@@ -62,17 +76,16 @@ public class Main {
         }
     }
 
-
-        private static void adminOperations(Admin admin, UserService userService) {
+    private static void adminOperations(Admin admin, UserService userService) {
         while (true) {
-            System.out.println("1.Afisare pachete turistice");
-            System.out.println("2.Adauga pachet turistic");
-            System.out.println("3.Sterge pachet turistic");
-            System.out.println("4.Actualizare pachet turistic");
-            System.out.println("5.Filtrare pachete turistice");
-            System.out.println("6.Raport vanzari");
-            System.out.println("7.Sterge cont");
-            System.out.println("8.Actualizeaza parola");
+            System.out.println("1. Afisare pachete turistice");
+            System.out.println("2. Adauga pachet turistic");
+            System.out.println("3. Sterge pachet turistic");
+            System.out.println("4. Actualizare pachet turistic");
+            System.out.println("5. Filtrare pachete turistice");
+            System.out.println("6. Raport vanzari");
+            System.out.println("7. Sterge cont");
+            System.out.println("8. Actualizeaza parola");
             String adminChoice = scanner.nextLine().trim();
             switch (adminChoice) {
                 case "1":
@@ -94,14 +107,22 @@ public class Main {
                     userService.raportVanzari();
                     break;
                 case "7":
-                    removeAdmin(admin, userService);
+                    try {
+                        removeAdmin(admin, userService);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la ștergerea contului de admin: " + e.getMessage());
+                    }
                     break;
                 case "8":
-                    updateAdmin(admin, userService);
+                    try {
+                        updateAdmin(admin, userService);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la actualizarea parolei de admin: " + e.getMessage());
+                    }
                     break;
             }
             System.out.println("Doriti sa efectuati alta actiune? (Da/Nu)");
-            if(scanner.nextLine().trim().equalsIgnoreCase("Nu")) {
+            if (scanner.nextLine().trim().equalsIgnoreCase("Nu")) {
                 break;
             }
         }
@@ -118,8 +139,8 @@ public class Main {
             System.out.println("7. Sterge recenzie");
             System.out.println("8. Actualizeaza recenzie");
             System.out.println("9. Afiseaza toate recenziile tale");
-            System.out.println("10.Sterge cont");
-            System.out.println("11.Actualizeaza cont");
+            System.out.println("10. Sterge cont");
+            System.out.println("11. Actualizeaza cont");
             System.out.println("12. Logout");
             String normalUserChoice = scanner.nextLine().trim();
             switch (normalUserChoice) {
@@ -145,25 +166,46 @@ public class Main {
                     reviewService.stergeRecenzie(normalUser);
                     break;
                 case "8":
-                    reviewService.actualizeazaRecenzie(normalUser);
+                    try {
+                        reviewService.actualizeazaRecenzie(normalUser);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la actualizarea recenziei: " + e.getMessage());
+                    }
                     break;
                 case "9":
-                    List<Review> reviews = reviewRepositoryService.getReviewsByUser(normalUser.getUsername());
-                    reviewService.afisareRecenzii(reviews);
+                    try {
+                        List<Review> reviews = reviewRepositoryService.getReviewsByUser(normalUser.getUsername());
+                        reviewService.afisareRecenzii(reviews);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la afișarea recenziilor: " + e.getMessage());
+                    }
                     break;
                 case "10":
-                    removeUser(normalUser, userService);
+                    try {
+                        removeUser(normalUser, userService);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la ștergerea contului: " + e.getMessage());
+                    }
                     break;
                 case "11":
-                    updateUser(normalUser, userService);
+                    try {
+                        updateUser(normalUser, userService);
+                    } catch (SQLException e) {
+                        System.out.println("Eroare la actualizarea contului: " + e.getMessage());
+                    }
+                    break;
                 case "12":
                     Autentificat = false;
                     System.out.println("V-ati delogat cu succes.");
                     return;
+                default:
+                    System.out.println("Optiune invalida. Va rugam incercati din nou.");
+                    break;
             }
         }
     }
-    private static void removeUser(NormalUser normalUser, UserService userService) {
+
+    private static void removeUser(NormalUser normalUser, UserService userService) throws SQLException {
         System.out.println("Introduceti username-ul dvs. pentru a confirma stergerea contului:");
         String username = scanner.nextLine().trim();
         System.out.println("Introduceti parola dvs. pentru a confirma stergerea contului:");
@@ -171,13 +213,13 @@ public class Main {
         userService.removeUser(username, password);
     }
 
-    private static void removeAdmin(Admin admin, UserService userService) {
+    private static void removeAdmin(Admin admin, UserService userService) throws SQLException {
         System.out.println("Introduceti parola adminului pentru a confirma stergerea: ");
         String password = scanner.nextLine().trim();
-        userService.removeAdmin(admin.getUsername(),password);
+        userService.removeAdmin(admin.getUsername(), password);
     }
 
-    private static void updateAdmin(Admin admin, UserService userService) {
+    private static void updateAdmin(Admin admin, UserService userService) throws SQLException {
         System.out.println("Introduceti parola veche:");
         String oldPassword = scanner.nextLine().trim();
         System.out.println("Introduceti noua parola:");
@@ -185,14 +227,11 @@ public class Main {
         userService.updateAdmin(admin.getUsername(), oldPassword, newPassword);
     }
 
-    private static void updateUser(NormalUser normalUser, UserService userService)
-    {
+    private static void updateUser(NormalUser normalUser, UserService userService) throws SQLException {
         System.out.println("Introduceti parola veche:");
         String oldPassword = scanner.nextLine().trim();
-        System.out.println("Introduceți noua parola:");
+        System.out.println("Introduceti noua parola:");
         String newPassword = scanner.nextLine().trim();
         userService.updateNormalUser(normalUser.getUsername(), oldPassword, newPassword);
-
     }
-
 }
