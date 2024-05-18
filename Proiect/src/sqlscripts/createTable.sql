@@ -16,15 +16,14 @@ CREATE TABLE `demo`.`tourist_package` (
                                           destinatie_id INT,
                                           FOREIGN KEY (destinatie_id) REFERENCES destination(id) ON DELETE CASCADE
 );
-
 CREATE TABLE `demo`.`reviews` (
-                                 id INT AUTO_INCREMENT PRIMARY KEY,
-                                 text TEXT,
-                                 rating DOUBLE NOT NULL,
-                                 username VARCHAR(255) NOT NULL,
-                                 date DATE NOT NULL,
-                                 package_id INT,
-                                 FOREIGN KEY (package_id) REFERENCES tourist_package(id) ON DELETE CASCADE
+                                  id INT AUTO_INCREMENT PRIMARY KEY,
+                                  text TEXT,
+                                  rating DOUBLE NOT NULL,
+                                  username VARCHAR(255) NOT NULL,
+                                  date DATE NOT NULL,
+                                  package_id INT,
+                                  FOREIGN KEY (package_id) REFERENCES tourist_package(id) ON DELETE CASCADE
 );
 
 CREATE TABLE `demo`.`user` (
@@ -39,12 +38,18 @@ CREATE TABLE `demo`.`user` (
                                discount_procentaj INT DEFAULT 0
 );
 
-CREATE TABLE `demo`.`user_packages` (
-                                        user_id INT,
-                                        package_id INT,
-                                        PRIMARY KEY (user_id, package_id),
-                                        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-                                        FOREIGN KEY (package_id) REFERENCES tourist_package(id) ON DELETE CASCADE
+CREATE TABLE `demo`.`rezervari` (
+                                    `id_rezervare` INT AUTO_INCREMENT PRIMARY KEY,
+                                    `username` VARCHAR(50) NOT NULL,
+                                    `id_pachet` INT NOT NULL,
+                                    `data_rezervare` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FOREIGN KEY (`username`) REFERENCES `user`(`username`),
+                                    FOREIGN KEY (`id_pachet`) REFERENCES `tourist_package`(`id`)
 );
+
+
+
+
+
 
 
