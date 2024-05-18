@@ -7,7 +7,7 @@ CREATE TABLE `demo`.`destination` (
 );
 
 CREATE TABLE `demo`.`tourist_package` (
-                                          id INT AUTO_INCREMENT PRIMARY KEY,
+                                          id INT PRIMARY KEY,
                                           nume VARCHAR(255) NOT NULL,
                                           pret DECIMAL(10, 2) NOT NULL,
                                           durata VARCHAR(255),

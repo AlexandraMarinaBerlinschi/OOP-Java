@@ -9,7 +9,7 @@ import tourism.TouristPackage;
 import exceptions.PackageNotFoundException;
 
 public class TouristPackageDao {
-    private static final String INSERT_PACKAGE_QUERY = "INSERT INTO tourist_package (nume, pret, durata, rating, nr_persoane, destinatie_id) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_PACKAGE_QUERY = "INSERT INTO tourist_package (id, nume, pret, durata, rating, nr_persoane, destinatie_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String GET_PACKAGE_BY_ID_QUERY = "SELECT * FROM tourist_package WHERE id = ?";
     private static final String GET_ALL_PACKAGES_QUERY = "SELECT * FROM tourist_package";
     private static final String UPDATE_PACKAGE_QUERY = "UPDATE tourist_package SET nume = ?, pret = ?, durata = ?, rating = ?, nr_persoane = ?, destinatie_id = ? WHERE id = ?";
@@ -43,13 +43,14 @@ public class TouristPackageDao {
 
         touristPackage.getDestinatie().setId(destinatieId);
 
-        try (PreparedStatement statement = connection.prepareStatement(INSERT_PACKAGE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, touristPackage.getNume());
-            statement.setDouble(2, touristPackage.getPret());
-            statement.setString(3, touristPackage.getDurata());
-            statement.setFloat(4, touristPackage.getRating());
-            statement.setInt(5, touristPackage.getNrPersoane());
-            statement.setInt(6, destinatieId);
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_PACKAGE_QUERY)) {
+            statement.setInt(1, touristPackage.getId()); // Setează ID-ul furnizat de utilizator
+            statement.setString(2, touristPackage.getNume());
+            statement.setDouble(3, touristPackage.getPret());
+            statement.setString(4, touristPackage.getDurata());
+            statement.setFloat(5, touristPackage.getRating());
+            statement.setInt(6, touristPackage.getNrPersoane());
+            statement.setInt(7, destinatieId);
 
             int affectedRows = statement.executeUpdate();
 
@@ -57,11 +58,7 @@ public class TouristPackageDao {
                 return -1;
             }
 
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Return the ID of the newly inserted package
-                }
-            }
+            return touristPackage.getId();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -140,6 +137,7 @@ public class TouristPackageDao {
                 Destination destinatie = getDestinationById(destinatieId);
 
                 TouristPackage touristPackage = new TouristPackage(nume, pret, durata, rating, destinatie, nrPersoane);
+                touristPackage.setId(packageId);
                 packages.add(touristPackage);
             }
         } catch (SQLException e) {
@@ -150,8 +148,6 @@ public class TouristPackageDao {
     }
 
     public void updatePackage(TouristPackage updatedPackage) throws SQLException, PackageNotFoundException {
-        String UPDATE_PACKAGE_QUERY = "UPDATE tourist_package SET nume = ?, pret = ?, durata = ?, rating = ?, nr_persoane = ?, destinatie_id = ? WHERE id = ?";
-
         try (PreparedStatement statement = connection.prepareStatement(UPDATE_PACKAGE_QUERY)) {
             statement.setString(1, updatedPackage.getNume());
             statement.setDouble(2, updatedPackage.getPret());
@@ -167,6 +163,7 @@ public class TouristPackageDao {
             }
         }
     }
+
     public void deletePackage(int id, Connection conn) throws PackageNotFoundException, SQLException {
         try (PreparedStatement statement = conn.prepareStatement(DELETE_PACKAGE_QUERY)) {
             statement.setInt(1, id);
@@ -199,14 +196,14 @@ public class TouristPackageDao {
             int affectedRows = statement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Inserarea destinației a eșuat, nu s-a returnat niciun ID.");
+                throw new SQLException("Inserarea destinației a esuat, nu s-a returnat niciun ID.");
             }
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     return generatedKeys.getInt(1);
                 } else {
-                    throw new SQLException("Inserarea destinației a eșuat, nu s-a generat niciun ID.");
+                    throw new SQLException("Inserarea destinației a esuat, nu s-a generat niciun ID.");
                 }
             }
         } catch (SQLException e) {

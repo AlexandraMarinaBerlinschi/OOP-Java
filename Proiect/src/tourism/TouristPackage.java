@@ -10,6 +10,9 @@ public class TouristPackage {
     private String durata;
     private float rating;
     private Destination destinatie;
+
+    private int destinatie_id;
+
     private String nume;
     private int nrPersoane;
     //private final int id;
@@ -28,6 +31,16 @@ public class TouristPackage {
         this.nrPersoane = nrPersoane;
         this.reviews = new ArrayList<>();
     }
+
+    public TouristPackage(int id, String nume, int destinatie_id, String durata, double pret) {
+        this.id = id;
+        this.nume = nume;
+        this.destinatie = destinatie;
+        this.durata = durata;
+        this.pret = pret;
+        this.reviews = new ArrayList<>();
+    }
+
 
     public int getId() {
         return id;

@@ -7,6 +7,8 @@ public class Destination {
 
     private int id;
     private String tara;
+
+    private String nume;
     private String tipAtractie;
     private String activitati;
     private List<TouristPackage> pacheteDisponibile = new ArrayList<>();
@@ -21,6 +23,10 @@ public class Destination {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getNume() {
+        return nume;
     }
 
     public String getNumeDestinatie() {

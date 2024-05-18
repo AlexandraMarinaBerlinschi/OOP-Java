@@ -1,12 +1,15 @@
 package services;
 
 import dao.ReviewDao;
+import database.DataBaseConnection;
 import tourism.TouristPackage;
 import user.NormalUser;
 import reviewSystem.Review;
 import daoservices.ReviewRepositoryService;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +39,9 @@ public class ReviewService {
             double rating = scanner.nextDouble();
             scanner.nextLine();
 
-            if (user.getPacheteRezervate().contains(pachet)) {
+            if (verificaRezervare(user, pachet)) {
                 Review review = new Review(text, rating, user.getUsername(), LocalDate.now());
+                review.setPackageId(pachet.getId());
                 reviewRepositoryService.addReview(review);
                 pachet.addReview(review);
                 System.out.println("Recenzia a fost adaugata cu succes!");
@@ -49,21 +53,43 @@ public class ReviewService {
         }
     }
 
-    private TouristPackage obtinePachet(NormalUser user) {
-        System.out.println("Alegeti un pachet din rezervarile dvs caruia vreti sa ii lasati o recenzie");
-        List<TouristPackage> pacheteRezervate = user.getPacheteRezervate();
-        for (int i = 0; i < pacheteRezervate.size(); i++) {
-            System.out.println((i + 1) + ". " + pacheteRezervate.get(i).getNume());
+    private boolean verificaRezervare(NormalUser user, TouristPackage pachet) {
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM rezervari WHERE username = ? AND id_pachet = ?")) {
+            stmt.setString(1, user.getUsername());
+            stmt.setInt(2, pachet.getId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Eroare la verificarea rezervarii: " + e.getMessage());
         }
-        int alegere = citesteInt("Alegeti numarul pachetului");
-        if (alegere > 0 && alegere <= pacheteRezervate.size()) {
-            return pacheteRezervate.get(alegere - 1);
-        } else {
-            System.out.println("Alegere invalida");
+        return false;
+    }
+    private TouristPackage obtinePachet(NormalUser user) {
+        try {
+            List<TouristPackage> pacheteRezervate = reviewRepositoryService.getReservations(user.getUsername());
+            if (pacheteRezervate.isEmpty()) {
+                System.out.println("Nu aveti pachete rezervate caruia sa ii lasati o recenzie.");
+                return null;
+            }
+            System.out.println("Alegeti un pachet din rezervarile dvs caruia vreti sa ii lasati o recenzie");
+            for (int i = 0; i < pacheteRezervate.size(); i++) {
+                System.out.println((i + 1) + ". " + pacheteRezervate.get(i).getNume());
+            }
+            int alegere = citesteInt("Alegeti numarul pachetului");
+            if (alegere > 0 && alegere <= pacheteRezervate.size()) {
+                return pacheteRezervate.get(alegere - 1);
+            } else {
+                System.out.println("Alegere invalida");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Eroare la obtinerea pachetelor rezervate: " + e.getMessage());
             return null;
         }
     }
-
     public void afiseazaRecenziiUtilizator(NormalUser user) throws SQLException {
         List<Review> userReviews = reviewRepositoryService.getReviewsByUser(user.getUsername());
         if (userReviews.isEmpty()) {

@@ -3,6 +3,8 @@ package user;
 import interfaces.IUser;
 
 public abstract class User implements IUser {
+    protected int id;
+
     protected String username;
     protected String password;
 
@@ -11,6 +13,13 @@ public abstract class User implements IUser {
         this.password = password;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
     public String getUsername() {
         return username;
     }

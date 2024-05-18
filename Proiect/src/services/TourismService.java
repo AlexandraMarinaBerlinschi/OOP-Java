@@ -55,6 +55,8 @@ public class TourismService {
     }
 
     public void adaugaPachet(Admin admin) {
+        int pachetId = citesteInt("Introduceti ID-ul pachetului turistic:");
+
         String numePachet = citesteString("Numele pachetului:");
         String numeDestinatie = citesteString("Destinatie:");
         float pret = citesteFloat("Pretul pachetului:");
@@ -71,11 +73,6 @@ public class TourismService {
         destinatie.setId(destinatieId);
 
         TouristPackage pachet = new TouristPackage(numePachet, pret, durata, rating, destinatie, nrPersoane);
-        int pachetId = repositoryService.addPackage(pachet);
-        if (pachetId == -1) {
-            System.out.println("Eroare la adaugarea pachetului turistic in baza de date.");
-            return;
-        }
         pachet.setId(pachetId);
 
         admin.addTouristPackage(pachet);
@@ -83,6 +80,7 @@ public class TourismService {
     }
 
     public void detaliiPachet(TouristPackage pachet) {
+        System.out.println("ID: " + pachet.getId());
         System.out.println("Nume: " + pachet.getNume());
         System.out.println("Destinatie: " + pachet.getDestinatie());
         System.out.println("Durata: " + pachet.getDurata());
@@ -117,7 +115,7 @@ public class TourismService {
         if (pacheteFiltrate.isEmpty()) {
             System.out.println("Nu exista pachete turistice care sa corespunda criteriilor selectate.");
         } else {
-            pacheteFiltrate.forEach(pachet -> System.out.println(pachet.getNume()));
+            pacheteFiltrate.forEach(pachet -> detaliiPachet(pachet));
         }
     }
 
@@ -133,79 +131,81 @@ public class TourismService {
             System.out.println((i + 1) + ". " + pachete.get(i).getNume());
         }
 
-        System.out.println("Doriti detalii suplimentare despre un pachet? Introduceti numarul pachetului sau 0 pentru a continua.");
+        System.out.println("Doriti detalii suplimentare despre un pachet? Introduceti ID-ul pachetului sau 0 pentru a continua.");
         int alegere = citesteInt("Alegerea dvs:");
 
-        if (alegere > 0 && alegere <= pachete.size()) {
-            TouristPackage pachetSelectat = pachete.get(alegere - 1);
-            detaliiPachet(pachetSelectat);
-        } else if (alegere != 0) {
-            System.out.println("Alegere invalida.");
+        if (alegere != 0) {
+            TouristPackage pachetSelectat = repositoryService.getPackageById(alegere);
+            if (pachetSelectat != null) {
+                detaliiPachet(pachetSelectat);
+            } else {
+                System.out.println("ID-ul introdus nu corespunde niciunui pachet turistic.");
+            }
         }
     }
 
     public void stergePachet(Admin admin) {
-        List<TouristPackage> pachete = repositoryService.getAllPackages();
-        if (pachete.isEmpty()) {
-            System.out.println("Nu exista pachete turistice disponibile");
+        System.out.println("Introduceti ID-ul pachetului turistic pe care vreti sa il stergeti:");
+        int pachetId = citesteInt("ID:");
+
+        TouristPackage pachetDeSters = repositoryService.getPackageById(pachetId);
+        if (pachetDeSters == null) {
+            System.out.println("Nu exista niciun pachet turistic cu ID-ul " + pachetId);
             return;
         }
 
-        System.out.println("Selectati pachetul turistic pe care vreti sa il stergeti:");
-        for (int i = 0; i < pachete.size(); i++) {
-            System.out.println((i + 1) + ". " + pachete.get(i).getNume());
-        }
-
-        int choice = citesteInt("Alegerea dvs:");
-        if (choice > 0 && choice <= pachete.size()) {
-            TouristPackage deletePachet = pachete.get(choice - 1);
-            if (repositoryService.deletePackage(deletePachet.getId())) {
-                admin.removeTouristPackage(deletePachet);
-                System.out.println("Pachetul turistic \"" + deletePachet.getNume() + "\" a fost sters cu succes");
-            } else {
-                System.out.println("Stergerea pachetului a esuat");
-            }
+        if (repositoryService.deletePackage(pachetId)) {
+            admin.removeTouristPackage(pachetDeSters);
+            System.out.println("Pachetul turistic \"" + pachetDeSters.getNume() + "\" a fost sters cu succes");
         } else {
-            System.out.println("Selectie invalida, va rugam incercati din nou");
+            System.out.println("Stergerea pachetului a esuat");
         }
     }
 
-
     public void actualizeazaPachet(Admin admin) {
-        List<TouristPackage> pachete = repositoryService.getAllPackages();
-        if (pachete.isEmpty()) {
-            System.out.println("Nu exista pachete turistice disponibile");
+        System.out.println("Introduceti ID-ul pachetului turistic pe care vreti sa il actualizati:");
+        int pachetId = citesteInt("ID:");
+
+        TouristPackage pachetDeActualizat = repositoryService.getPackageById(pachetId);
+        if (pachetDeActualizat == null) {
+            System.out.println("Nu exista niciun pachet turistic cu ID-ul " + pachetId);
             return;
         }
 
-        System.out.println("Selectati pachetul turistic pe care vreti sa il actualizati:");
-        for (int i = 0; i < pachete.size(); i++) {
-            System.out.println((i + 1) + ". " + pachete.get(i).getNume());
+        System.out.println("Introduceti noile detalii ale pachetului:");
+        String numeNou = citesteString("Noul nume (apasati Enter pentru a ramane neschimbat):");
+        if (!numeNou.isEmpty()) {
+            pachetDeActualizat.setNume(numeNou);
         }
 
-        int choice = citesteInt("Alegerea dvs:");
-        if (choice > 0 && choice <= pachete.size()) {
-            TouristPackage updatePachet = pachete.get(choice - 1);
-            System.out.println("Introduceti noile detalii ale pachetului:");
-            String numeNou = citesteString("Noul nume:");
-            String destinatieNoua = citesteString("Noua destinatie:");
-            float pretNou = citesteFloat("Noul pret:");
-            int durataNoua = citesteInt("Noua durata (in zile):");
-
+        String destinatieNoua = citesteString("Noua destinatie (apasati Enter pentru a ramane neschimbata):");
+        if (!destinatieNoua.isEmpty()) {
             Destination nouaDestinatie = new Destination(destinatieNoua);
-            updatePachet.setNume(numeNou);
-            updatePachet.setDestinatie(nouaDestinatie);
-            updatePachet.setPret(pretNou);
-            updatePachet.setDurata(String.valueOf(durataNoua));
-
-            if (repositoryService.updatePackage(updatePachet)) {
-                System.out.println("Pachetul turistic \"" + updatePachet.getNume() + "\" a fost actualizat cu succes");
+            int destinatieId = repositoryService.addDestination(nouaDestinatie);
+            if (destinatieId != -1) {
+                nouaDestinatie.setId(destinatieId);
+                pachetDeActualizat.setDestinatie(nouaDestinatie);
             } else {
-                System.out.println("Actualizarea pachetului a esuat");
+                System.out.println("Eroare la adaugarea destinației in baza de date.");
             }
-        } else {
-            System.out.println("Selectie invalida, va rugam incercati din nou");
         }
+
+        float pretNou = citesteFloat("Noul pret (introduceti 0 pentru a ramane neschimbat):");
+        if (pretNou != 0) {
+            pachetDeActualizat.setPret(pretNou);
+        }
+
+        int durataNoua = citesteInt("Noua durata in zile (introduceti 0 pentru a ramane neschimbata):");
+        if (durataNoua != 0) {
+            pachetDeActualizat.setDurata(String.valueOf(durataNoua));
+        }
+
+        if (repositoryService.updatePackage(pachetDeActualizat)) {
+            System.out.println("Pachetul turistic \"" + pachetDeActualizat.getNume() + "\" a fost actualizat cu succes");
+        } else {
+            System.out.println("Actualizarea pachetului a esuat");
+        }
+
     }
 
     public void actualizarePachetMeniu(TouristPackage updatePacket) {

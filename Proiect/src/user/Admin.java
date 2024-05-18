@@ -18,6 +18,11 @@ public class Admin extends User {
         }
     }
 
+    public Admin(String username, String password) {
+        super(username, password);
+        this.pacheteTuristice = new ArrayList<>();
+    }
+
     @Override
     public void updatePassword(String newPassword) {
         if (ValidPassword(newPassword)) {
@@ -32,11 +37,24 @@ public class Admin extends User {
         return password.matches("(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{6,}");
     }
 
+    public void updateTouristPackage(TouristPackage updatedPackage) {
+        for (int i = 0; i < pacheteTuristice.size(); i++) {
+            if (pacheteTuristice.get(i).getId() == updatedPackage.getId()) {
+                pacheteTuristice.set(i, updatedPackage);
+                break;
+            }
+        }
+    }
+
     public void addTouristPackage(TouristPackage pachet) {
         pacheteTuristice.add(pachet);
     }
 
     public void removeTouristPackage(TouristPackage pachet) {
         pacheteTuristice.remove(pachet);
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

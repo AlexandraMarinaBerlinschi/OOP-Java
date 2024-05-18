@@ -2,9 +2,11 @@ package daoservices;
 
 import dao.AdminDao;
 import dao.NormalUserDao;
+import tourism.TouristPackage;
 import user.Admin;
 import user.NormalUser;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -14,27 +16,30 @@ public class UserRepositoryService {
     private final AdminDao adminDao;
     private final NormalUserDao normalUserDao;
 
+
     public UserRepositoryService() {
         this.adminDao = new AdminDao();
         this.normalUserDao = new NormalUserDao();
+
     }
+
 
     public boolean addAdmin(Admin admin) {
-        if (admin != null && adminDao.getAdmin(admin.getUsername()) == null) {
-            admins.add(admin);
+        try {
             adminDao.addAdmin(admin);
             return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
-
     public boolean addNormalUser(NormalUser normalUser) {
-        if (normalUser != null && normalUserDao.getUser(normalUser.getUsername()) == null) {
-            normalUsers.add(normalUser);
-            normalUserDao.addUser(normalUser);
-            return true;
+        try {
+            return normalUserDao.addUser(normalUser);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public List<Admin> getAdmins() {
@@ -45,60 +50,68 @@ public class UserRepositoryService {
         return new ArrayList<>(normalUsers);
     }
 
+    public List<TouristPackage> getReservations(String username) throws SQLException {
+        return normalUserDao.getReservations(username);
+    }
+
     public Admin getAdminByUsername(String username) {
-        return admins.stream()
-                .filter(admin -> admin.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+        try {
+            return adminDao.getAdmin(username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public NormalUser getNormalUserByUsername(String username) {
-        return normalUsers.stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
+        try {
+            return normalUserDao.getUser(username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public boolean removeAdmin(String username) {
-        if (adminDao.getAdmin(username) != null) {
+        try {
             adminDao.deleteAdmin(username);
-            return admins.removeIf(admin -> admin.getUsername().equals(username));
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
-
     public boolean removeNormalUser(String username) {
-        if (normalUserDao.getUser(username) != null) {
-            normalUserDao.deleteUser(username);
-            return normalUsers.removeIf(user -> user.getUsername().equals(username));
+        try {
+            return normalUserDao.deleteUser(username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     public boolean updateAdmin(String username, Admin updatedAdmin) {
-        if (adminDao.getAdmin(username) != null) {
+        try {
             adminDao.updateAdmin(updatedAdmin);
-            for (int i = 0; i < admins.size(); i++) {
-                if (admins.get(i).getUsername().equals(username)) {
-                    admins.set(i, updatedAdmin);
-                    return true;
-                }
-            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
+
     public boolean updateNormalUser(String username, NormalUser updatedNormalUser) {
-        if (normalUserDao.getUser(username) != null) {
-            normalUserDao.updateUser(updatedNormalUser);
-            for (int i = 0; i < normalUsers.size(); i++) {
-                if (normalUsers.get(i).getUsername().equals(username)) {
-                    normalUsers.set(i, updatedNormalUser);
-                    return true;
-                }
-            }
+        try {
+            return normalUserDao.updateUser(updatedNormalUser);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
+    }
+
+    public void saveReservation(String username, int pachetId) throws SQLException {
+        normalUserDao.insertReservation(username, pachetId);
     }
 
     public NormalUser getNormalUserByRedeemCode(String redeemCode) {

@@ -18,9 +18,11 @@ public class TourismRepositoryService {
         this.connection = DataBaseConnection.getConnection();
         this.packageDao = new TouristPackageDao(connection);
     }
+
     public int addPackage(TouristPackage touristPackage) {
         return packageDao.addPackage(touristPackage);
     }
+
     public int addDestination(Destination destination) {
         String sql = "INSERT INTO destination (tara, tip_atractie, activitati, nume_destinatie) VALUES (?, ?, ?, ?)";
         try (Connection conn = DataBaseConnection.getConnection();
@@ -101,6 +103,7 @@ public class TourismRepositoryService {
             }
         }
     }
+
     public List<TouristPackage> searchByName(String name) {
         return packageDao.getAllPackages().stream()
                 .filter(p -> p.getNume().toLowerCase().contains(name.toLowerCase()))
