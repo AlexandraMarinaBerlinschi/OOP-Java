@@ -5,6 +5,7 @@ import tourism.Destination;
 import tourism.TouristPackage;
 import database.DataBaseConnection;
 import exceptions.PackageNotFoundException;
+import exceptions.PackageReservedException;
 
 import java.sql.*;
 import java.util.List;
@@ -66,7 +67,8 @@ public class TourismRepositoryService {
         }
     }
 
-    public boolean deletePackage(int id) {
+
+    public boolean deletePackage(int id) throws PackageReservedException {
         Connection conn = null;
         try {
             conn = DataBaseConnection.getConnection();
@@ -80,6 +82,8 @@ public class TourismRepositoryService {
             packageDao.deletePackage(id, conn);
             conn.commit();
             return true;
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new PackageReservedException("Nu puteti sterge pachetul respectiv. Acesta este rezervat de catre un utilizator.");
         } catch (SQLException e) {
             if (conn != null) {
                 try {

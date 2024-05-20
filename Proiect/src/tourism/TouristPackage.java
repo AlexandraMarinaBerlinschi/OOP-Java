@@ -21,8 +21,7 @@ public class TouristPackage {
     private static int lastId = 0;
 
     public TouristPackage(String nume, double pret, String durata, float rating, Destination destinatie, int nrPersoane) {
-        this.id = ++lastId;
-        // this.id = id;
+        this.id = id;
         this.nume = nume;
         this.pret = pret;
         this.durata = durata;

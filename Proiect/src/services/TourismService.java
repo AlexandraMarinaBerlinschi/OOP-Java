@@ -1,27 +1,21 @@
 package services;
 
-import daoservices.TourismRepositoryService;
+import exceptions.PackageReservedException;
 import tourism.TouristPackage;
 import tourism.Destination;
 import user.Admin;
 import java.util.List;
 import java.util.Scanner;
-import dao.TouristPackageDao;
-import database.DataBaseConnection;
-import exceptions.PackageNotFoundException;
-import java.sql.Connection;
+import daoservices.TourismRepositoryService;
 
 public class TourismService {
     private List<TouristPackage> pacheteTuristice;
     private static Scanner scanner = new Scanner(System.in);
     private final TourismRepositoryService repositoryService;
-    private final TouristPackageDao packageDao;
 
     public TourismService() {
-        Connection connection = DataBaseConnection.getConnection();
         this.repositoryService = new TourismRepositoryService();
-        this.packageDao = new TouristPackageDao();
-        this.packageDao.addPackage(null, connection);
+        this.pacheteTuristice = repositoryService.getAllPackages();
     }
 
     public void afisareTouristPackage(TouristPackage pachet) {
@@ -37,11 +31,6 @@ public class TourismService {
         pacheteTuristice = repositoryService.getAllPackages();
     }
 
-    public void removeTouristPackage(TouristPackage pachet) {
-        repositoryService.deletePackage(pachet.getId());
-        pacheteTuristice = repositoryService.getAllPackages();
-    }
-
     public void updateTouristPackage(TouristPackage updatedPachet) {
         repositoryService.updatePackage(updatedPachet);
     }
@@ -53,6 +42,7 @@ public class TourismService {
     public List<TouristPackage> cautareDestinatie(String destinatie) {
         return repositoryService.searchByDestination(destinatie);
     }
+
 
     public void adaugaPachet(Admin admin) {
         int pachetId = citesteInt("Introduceti ID-ul pachetului turistic:");
@@ -75,6 +65,7 @@ public class TourismService {
         TouristPackage pachet = new TouristPackage(numePachet, pret, durata, rating, destinatie, nrPersoane);
         pachet.setId(pachetId);
 
+        repositoryService.addPackage(pachet);
         admin.addTouristPackage(pachet);
         System.out.println("Pachetul " + pachet.getNume() + " a fost adaugat cu succes cu ID-ul: " + pachetId);
     }
@@ -154,11 +145,15 @@ public class TourismService {
             return;
         }
 
-        if (repositoryService.deletePackage(pachetId)) {
-            admin.removeTouristPackage(pachetDeSters);
-            System.out.println("Pachetul turistic \"" + pachetDeSters.getNume() + "\" a fost sters cu succes");
-        } else {
-            System.out.println("Stergerea pachetului a esuat");
+        try {
+            if (repositoryService.deletePackage(pachetId)) {
+                admin.removeTouristPackage(pachetDeSters);
+                System.out.println("Pachetul turistic \"" + pachetDeSters.getNume() + "\" a fost sters cu succes");
+            } else {
+                System.out.println("Stergerea pachetului a esuat");
+            }
+        } catch (PackageReservedException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -200,12 +195,12 @@ public class TourismService {
             pachetDeActualizat.setDurata(String.valueOf(durataNoua));
         }
 
-        if (repositoryService.updatePackage(pachetDeActualizat)) {
+        boolean rezultat = repositoryService.updatePackage(pachetDeActualizat);
+        if (rezultat) {
             System.out.println("Pachetul turistic \"" + pachetDeActualizat.getNume() + "\" a fost actualizat cu succes");
         } else {
             System.out.println("Actualizarea pachetului a esuat");
         }
-
     }
 
     public void actualizarePachetMeniu(TouristPackage updatePacket) {

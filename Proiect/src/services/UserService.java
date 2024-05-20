@@ -281,20 +281,14 @@ public class UserService {
     }
 
     public void raportVanzari() {
-        double totalVanzari = 0;
         try {
-            List<NormalUser> normalUsers = userRepositoryService.getAllNormalUsers();
-            for (NormalUser user : normalUsers) {
-                List<TouristPackage> rezervari = userRepositoryService.getReservations(user.getUsername());
-                for (TouristPackage pachet : rezervari) {
-                    totalVanzari += pachet.getPret();
-                }
-            }
-            System.out.println("Totalul vanzarilor de pachete turistice este: " + totalVanzari);
+            double totalSales = userRepositoryService.getTotalSales();
+            System.out.println("Totalul vanzarilor de pachete turistice este: " + totalSales);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     public boolean removeUser(String username, String password) {
         if (utilizatorConectat instanceof NormalUser) {
             NormalUser normalUser = (NormalUser) utilizatorConectat;

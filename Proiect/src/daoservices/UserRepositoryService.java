@@ -81,6 +81,18 @@ public class UserRepositoryService {
             return false;
         }
     }
+
+    public double getTotalSales() throws SQLException {
+        double totalSales = 0.0;
+        List<NormalUser> normalUsers = normalUserDao.getAllNormalUsers(); // actualizare cu utilizatorii din baza de date
+        for (NormalUser user : normalUsers) {
+            List<TouristPackage> reservations = normalUserDao.getReservations(user.getUsername());
+            for (TouristPackage reservation : reservations) {
+                totalSales += reservation.getPret();
+            }
+        }
+        return totalSales;
+    }
     public boolean removeNormalUser(String username) {
         try {
             return normalUserDao.deleteUser(username);

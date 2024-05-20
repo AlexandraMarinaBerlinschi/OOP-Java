@@ -20,14 +20,7 @@ public class TouristPackageDao {
 
     private Connection connection;
 
-    public TouristPackageDao() {
-    }
-
     public TouristPackageDao(Connection connection) {
-        this.connection = connection;
-    }
-
-    public void addPackage(TouristPackage touristPackage, Connection connection) {
         this.connection = connection;
     }
 
@@ -44,7 +37,7 @@ public class TouristPackageDao {
         touristPackage.getDestinatie().setId(destinatieId);
 
         try (PreparedStatement statement = connection.prepareStatement(INSERT_PACKAGE_QUERY)) {
-            statement.setInt(1, touristPackage.getId()); // Setează ID-ul furnizat de utilizator
+            statement.setInt(1, touristPackage.getId());
             statement.setString(2, touristPackage.getNume());
             statement.setDouble(3, touristPackage.getPret());
             statement.setString(4, touristPackage.getDurata());
@@ -174,6 +167,7 @@ public class TouristPackageDao {
             }
         }
     }
+
 
     private int getOrInsertDestinationId(Destination destinatie) {
         try (PreparedStatement statement = connection.prepareStatement(GET_DESTINATION_BY_NAME_QUERY)) {
